@@ -32,8 +32,8 @@ func HandleMessage(message *tgbotapi.Message) {
 	}
 	switch message.Command() {
 	case "start":
-		msg := tgbotapi.NewMessage(message.Chat.ID, "Hi")
-		msg.ParseMode = tgbotapi.ModeHTML
+		msg := tgbotapi.NewMessage(message.Chat.ID, "Hi! Please use the following commands:\n/flightcheck <flightNumberIata>\n/random <positiveIntNumber>")
+		msg.ParseMode = tgbotapi.ModeMarkdown
 		if _, err := Bot.Send(msg); err != nil {
 			log.Println(err)
 		}
