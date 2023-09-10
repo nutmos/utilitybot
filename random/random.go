@@ -2,6 +2,6 @@ package random
 
 import "math/rand"
 
-func randomNumber(n int) int {
+func RandomNumber(n int) int {
 	return rand.Intn(n)
 }

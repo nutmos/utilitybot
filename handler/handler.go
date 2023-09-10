@@ -9,8 +9,8 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/nutmos/utilitybot/config"
-        "github.com/nutmos/utilitybot/random"
 	"github.com/nutmos/utilitybot/flightcaller"
+	"github.com/nutmos/utilitybot/random"
 )
 
 var (
@@ -73,8 +73,8 @@ func randomCommand(message *tgbotapi.Message) {
 	if err != nil {
 		sendMessage(message, "Error: Please Enter Only Positive Integer")
 	}
-	result := random.randomNumber(randomNumberRange)
-	sendMessage(message, string(result))
+	result := random.RandomNumber(randomNumberRange)
+	sendMessage(message, fmt.Sprintf("%d", result))
 }
 
 func sendMessage(receivingMsg *tgbotapi.Message, sendingMessageHTML string) {
