@@ -44,7 +44,8 @@ type FlightData struct {
 }
 
 type FlightStatusResponse struct {
-	Data []FlightData `json:"data"`
+	UserId int
+	Data   []FlightData `json:"data"`
 }
 
 func myFlightQuery(req *myFlightQueryRequest) *myFlightQueryResponse {
