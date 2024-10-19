@@ -44,6 +44,9 @@ func HandleMessage(message *tgbotapi.Message) {
 	case "random":
 		randomCommand(message)
 		break
+	case "showmyflights":
+		showMyFlightsCommand(message)
+		break
 	}
 }
 
