@@ -91,9 +91,16 @@ func randomCommand(message *tgbotapi.Message) {
 }
 
 func showMyFlightsCommand(message *tgbotapi.Message) {
-	myflights.MyFlightQuery(&myflights.MyFlightQueryRequest{
+	mf, _ := myflights.MyFlightQuery(&myflights.MyFlightQueryRequest{
 		UserId: 1234,
 	})
+	msgForSend := fmt.Sprintf("Flight Found: %d\n\n",
+		len(mf.Data),
+	)
+	for _, d := range mf.Data {
+		msgForSend += formatFlightMsg(d) + "\n\n"
+	}
+	sendMessage(message, msgForSend)
 }
 
 func sendMessage(receivingMsg *tgbotapi.Message, sendingMessageHTML string) {
@@ -102,4 +109,19 @@ func sendMessage(receivingMsg *tgbotapi.Message, sendingMessageHTML string) {
 	if _, err := Bot.Send(msg); err != nil {
 		log.Println(err)
 	}
+}
+
+func formatFlightMsg(flightData *flightcaller.FlightResponseData) string {
+	return fmt.Sprintf("Flight: %s\nAirline: %s\nDeparture: %s (%s)\nDeparture Schedule: %s\nDeparture Estimate: %s\nArrival: %s (%s)\nArrival Schedule: %s\nArrival Estimate: %s",
+		flightData.Flight.IATA,
+		flightData.Airline.Name,
+		flightData.Departure.Airport,
+		flightData.Departure.IATA,
+		flightData.Departure.Scheduled,
+		flightData.Departure.Estimated,
+		flightData.Arrival.Airport,
+		flightData.Arrival.IATA,
+		flightData.Arrival.Scheduled,
+		flightData.Arrival.Estimated,
+	)
 }
