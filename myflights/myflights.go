@@ -1,39 +1,46 @@
 package myflights
 
 import (
-	"time"
+	"errors"
 
 	"github.com/nutmos/utilitybot/flightcaller"
 )
 
-type myFlightQueryRequest struct {
+type MyFlightQueryRequest struct {
 	UserId int
 }
 
-type myFlightQueryResponse struct {
+type MyFlightQueryResponse struct {
 	UserId int
+	Data   []*flightcaller.FlightResponseData `json:"data"`
 }
 
-type FlightStatusResponse struct {
-	UserId int
-	Data   []flightcaller.FlightData `json:"data"`
-}
-
-func myFlightQuery(req *myFlightQueryRequest) *myFlightQueryResponse {
-	flights := []
-	resp := &myFlightQueryResponse{
+func MyFlightQuery(req *MyFlightQueryRequest) (*MyFlightQueryResponse, error) {
+	flightResp, err := getFlightByIATA("UA2", "SIN", "2025-02-17")
+	if err != nil {
+		return nil, err
+	}
+	resp := &MyFlightQueryResponse{
 		UserId: req.UserId,
-		Data: []FlightData{
-			{
-				Flight: &Flight{
-					Number: "2",
-					IATA: "UA",
-					ICAO: "UAL",
-				},
-				Airline: &Airline{
+		Data: []*flightcaller.FlightResponseData{
+			flightResp,
+		},
+	}
+	return resp, nil
+}
 
-				},
-			},
-		}
+func getFlightByIATA(flightIATA string, depAirportIATA string, depDate string) (*flightcaller.FlightResponseData, error) {
+	resp, err := flightcaller.GetFlight(&flightcaller.FlightRequest{
+		FlightIATA:         &flightIATA,
+		ArrScheduleTimeDep: &depDate,
+		DepIATA:            &depAirportIATA,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(resp.Data) != 1 {
+		return nil, errors.New("Error Flight Search: Found 0 or more than 1 flights.")
+	} else {
+		return &resp.Data[0], nil
 	}
 }
