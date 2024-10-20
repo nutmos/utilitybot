@@ -91,9 +91,14 @@ func randomCommand(message *tgbotapi.Message) {
 }
 
 func showMyFlightsCommand(message *tgbotapi.Message) {
-	mf, _ := myflights.MyFlightQuery(&myflights.MyFlightQueryRequest{
+	mf, err := myflights.MyFlightQuery(&myflights.MyFlightQueryRequest{
 		UserId: 1234,
 	})
+	if err != nil {
+		log.Println(err)
+		sendMessage(message, "eror")
+		return
+	}
 	msgForSend := fmt.Sprintf("Flight Found: %d\n\n",
 		len(mf.Data),
 	)

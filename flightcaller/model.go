@@ -1,24 +1,24 @@
 package flightcaller
 
 type FlightRequest struct {
-	FlightStatus       *FlightStatus `query:"flight_status"`
-	FlightDate         *string       `query:"flight_date"`
-	DepIATA            *string       `query:"dep_iata"`
-	ArrIATA            *string       `query:"arr_iata"`
-	DepICAO            *string       `query:"dep_icao"`
-	ArrICAO            *string       `query:"arr_icao"`
-	AirlineName        *string       `query:"airline_name"`
-	AirlineIATA        *string       `query:"airline_iata"`
-	AirlineICAO        *string       `query:"airline_icao"`
-	FlightNumber       *string       `query:"flight_number"`
-	FlightIATA         *string       `query:"flight_iata"`
-	FlightICAO         *string       `query:"flight_icao"`
-	MinDelayDep        *string       `query:"min_delay_dep"`
-	MinDelayArr        *string       `query:"min_delay_arr"`
-	MaxDelayDep        *string       `query:"max_delay_dep"`
-	MaxDelayArr        *string       `query:"max_delay_arr"`
-	ArrScheduleTimeArr *string       `query:"arr_schedule_time_arr"`
-	ArrScheduleTimeDep *string       `query:"arr_schedule_time_dep"`
+	FlightStatus       *FlightStatus `url:"flight_status"`
+	FlightDate         *string       `url:"flight_date"`
+	DepIATA            *string       `url:"dep_iata"`
+	ArrIATA            *string       `url:"arr_iata"`
+	DepICAO            *string       `url:"dep_icao"`
+	ArrICAO            *string       `url:"arr_icao"`
+	AirlineName        *string       `url:"airline_name"`
+	AirlineIATA        *string       `url:"airline_iata"`
+	AirlineICAO        *string       `url:"airline_icao"`
+	FlightNumber       *string       `url:"flight_number"`
+	FlightIATA         *string       `url:"flight_iata"`
+	FlightICAO         *string       `url:"flight_icao"`
+	MinDelayDep        *string       `url:"min_delay_dep"`
+	MinDelayArr        *string       `url:"min_delay_arr"`
+	MaxDelayDep        *string       `url:"max_delay_dep"`
+	MaxDelayArr        *string       `url:"max_delay_arr"`
+	ArrScheduleTimeArr *string       `url:"arr_schedule_time_arr"`
+	ArrScheduleTimeDep *string       `url:"arr_schedule_time_dep"`
 }
 
 type FlightStatus string

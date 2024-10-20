@@ -20,6 +20,7 @@ func GetFlight(flightReq *FlightRequest) (*FlightResponse, error) {
 		log.Print(err)
 	}
 	q, _ := query.Values(flightReq)
+	q.Add("access_key", apiKey)
 	req.URL.RawQuery = q.Encode()
 	resp, err1 := http.DefaultClient.Do(req)
 	if err1 != nil {

@@ -2,6 +2,7 @@ package myflights
 
 import (
 	"errors"
+	"log"
 
 	"github.com/nutmos/utilitybot/flightcaller"
 )
@@ -32,9 +33,10 @@ func MyFlightQuery(req *MyFlightQueryRequest) (*MyFlightQueryResponse, error) {
 func getFlightByIATA(flightIATA string, depAirportIATA string, depDate string) (*flightcaller.FlightResponseData, error) {
 	resp, err := flightcaller.GetFlight(&flightcaller.FlightRequest{
 		FlightIATA:         &flightIATA,
-		ArrScheduleTimeDep: &depDate,
 		DepIATA:            &depAirportIATA,
+		ArrScheduleTimeDep: &depDate,
 	})
+	log.Printf("%s %s %s\n", flightIATA, depAirportIATA, depDate)
 	if err != nil {
 		return nil, err
 	}
