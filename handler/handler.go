@@ -47,6 +47,8 @@ func HandleMessage(message *tgbotapi.Message) {
 	case "showmyflights":
 		showMyFlightsCommand(message)
 		break
+	case "pricecompare":
+		priceCompare(message)
 	}
 }
 
@@ -129,4 +131,8 @@ func formatFlightMsg(flightData *flightcaller.FlightResponseData) string {
 		flightData.Arrival.Scheduled,
 		flightData.Arrival.Estimated,
 	)
+}
+
+func priceCompare(message *tgbotapi.Message) {
+	sendMessage(message, messageHTML)
 }
