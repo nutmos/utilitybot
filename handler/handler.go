@@ -10,7 +10,9 @@ import (
 	"github.com/nutmos/utilitybot/config"
 	"github.com/nutmos/utilitybot/flightcaller"
 	"github.com/nutmos/utilitybot/myflights"
+	"github.com/nutmos/utilitybot/pricecompare"
 	"github.com/nutmos/utilitybot/random"
+	"github.com/nutmos/utilitybot/state"
 )
 
 var (
@@ -28,6 +30,15 @@ func init() {
 
 func HandleMessage(message *tgbotapi.Message) {
 	if !message.IsCommand() {
+		// check the current state
+		userID := message.Chat.ID
+		currentState := state.GetUserState(fmt.Sprintf("%d", userID), "telegram")
+		currentCommand := currentState.CurrentCommand
+		switch *currentCommand {
+		case "pricecompare":
+			contPriceCompare(message)
+			break
+		}
 		return
 	}
 	switch message.Command() {
@@ -59,7 +70,7 @@ func flightCheckCommand(message *tgbotapi.Message) {
 	})
 	flightDataArr := flightResp.Data
 	if err != nil {
-		sendMessage(message, "Error: Flight Not Found or API Error")
+		SendMessage(message, "Error: Flight Not Found or API Error")
 	}
 	messageHTML := ""
 	for i, flightData := range flightDataArr {
@@ -79,17 +90,17 @@ func flightCheckCommand(message *tgbotapi.Message) {
 			flightData.Arrival.Estimated,
 		)
 	}
-	sendMessage(message, messageHTML)
+	SendMessage(message, messageHTML)
 }
 
 func randomCommand(message *tgbotapi.Message) {
 	randomNumberRangeString := strings.Replace(message.Text, "/random ", "", 1)
 	randomNumberRange, err := strconv.Atoi(randomNumberRangeString)
 	if err != nil {
-		sendMessage(message, "Error: Please Enter Only Positive Integer")
+		SendMessage(message, "Error: Please Enter Only Positive Integer")
 	}
 	result := random.RandomNumber(randomNumberRange)
-	sendMessage(message, fmt.Sprintf("%d", result))
+	SendMessage(message, fmt.Sprintf("%d", result))
 }
 
 func showMyFlightsCommand(message *tgbotapi.Message) {
@@ -98,7 +109,7 @@ func showMyFlightsCommand(message *tgbotapi.Message) {
 	})
 	if err != nil {
 		log.Println(err)
-		sendMessage(message, "eror")
+		SendMessage(message, "eror")
 		return
 	}
 	msgForSend := fmt.Sprintf("Flight Found: %d\n\n",
@@ -107,10 +118,10 @@ func showMyFlightsCommand(message *tgbotapi.Message) {
 	for _, d := range mf.Data {
 		msgForSend += formatFlightMsg(d) + "\n\n"
 	}
-	sendMessage(message, msgForSend)
+	SendMessage(message, msgForSend)
 }
 
-func sendMessage(receivingMsg *tgbotapi.Message, sendingMessageHTML string) {
+func SendMessage(receivingMsg *tgbotapi.Message, sendingMessageHTML string) {
 	msg := tgbotapi.NewMessage(receivingMsg.Chat.ID, sendingMessageHTML)
 	msg.ParseMode = tgbotapi.ModeHTML
 	if _, err := Bot.Send(msg); err != nil {
@@ -134,5 +145,11 @@ func formatFlightMsg(flightData *flightcaller.FlightResponseData) string {
 }
 
 func priceCompare(message *tgbotapi.Message) {
-	sendMessage(message, messageHTML)
+	reply := pricecompare.StartCommand(message)
+	SendMessage(message, reply)
+}
+
+func contPriceCompare(message *tgbotapi.Message) {
+	reply := pricecompare.ContinueCommand(message)
+	SendMessage(message, reply)
 }
