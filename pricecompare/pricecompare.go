@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	u "github.com/bcicen/go-units"
 	"github.com/fatih/structs"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/mitchellh/mapstructure"
@@ -13,7 +14,7 @@ import (
 type UserData struct {
 	ConversationProgress ConversationProgress
 	ProductCount         int
-	BaseUnit             string
+	BaseUnit             u.Unit
 	ProductList          []Product
 }
 
@@ -66,7 +67,7 @@ func ContinueCommand(message *tgbotapi.Message) string {
 	switch userData.ConversationProgress.ConversationType {
 	case ConversationTypeInit:
 		return productCountReply(message, userData)
-	case ConversationTypeBaseUnit:
+	case ConversationTypeProductCount:
 		return unitReply(message, userData)
 	}
 	return ""
@@ -87,8 +88,16 @@ func productCountReply(message *tgbotapi.Message, userData UserData) string {
 	return "Great! What is the base unit you would like to use for the comparison?"
 }
 
-func unitReply(message *tgbotapi.Message) string {
-
+func unitReply(message *tgbotapi.Message, userData UserData) string {
+	unit, err := u.Find(message.Text)
+	if err != nil {
+		return "You enter the incorrect unit. Please enter the correct unit."
+	}
+	userData.ConversationProgress.ConversationType = ConversationTypeBaseUnit
+	userData.BaseUnit = unit
+	userID := message.Chat.ID
+	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
+	return "Sure, let's start the unit conversion."
 }
 
 func ProgressCommand(message *tgbotapi.Message) {

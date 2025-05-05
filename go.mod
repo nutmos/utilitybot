@@ -5,6 +5,7 @@ go 1.22
 toolchain go1.23.8
 
 require (
+	github.com/bcicen/go-units v1.0.5
 	github.com/fatih/structs v1.1.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/go-querystring v1.1.0
@@ -14,6 +15,8 @@ require (
 )
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
+	github.com/bcicen/bfstree v1.0.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
