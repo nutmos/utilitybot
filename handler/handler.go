@@ -146,10 +146,14 @@ func formatFlightMsg(flightData *flightcaller.FlightResponseData) string {
 
 func priceCompare(message *tgbotapi.Message) {
 	reply := pricecompare.StartCommand(message)
-	SendMessage(message, reply)
+	for _, r := range reply {
+		SendMessage(message, r)
+	}
 }
 
 func contPriceCompare(message *tgbotapi.Message) {
 	reply := pricecompare.ContinueCommand(message)
-	SendMessage(message, reply)
+	for _, r := range reply {
+		SendMessage(message, r)
+	}
 }
