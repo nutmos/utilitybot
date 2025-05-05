@@ -2,6 +2,9 @@ package state
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/patrickmn/go-cache"
 )
 
 type State struct {
@@ -11,10 +14,10 @@ type State struct {
 	UserData       map[string]interface{} `json:"user_data"`
 }
 
-var stateDatabase map[string]*State
+var stateCache *cache.Cache
 
 func init() {
-	stateDatabase = map[string]*State{}
+	stateCache = cache.New(5*time.Minute, 10*time.Minute)
 }
 
 func buildStateKey(user string, platform string) string {
@@ -23,16 +26,16 @@ func buildStateKey(user string, platform string) string {
 
 func GetUserState(user string, platform string) *State {
 	stateKey := buildStateKey(user, platform)
-	userState, ok := stateDatabase[stateKey]
-	if !ok {
+	userState, found := stateCache.Get(stateKey)
+	if !found {
 		return nil
 	}
-	return userState
+	return userState.(*State)
 }
 
 func DelUserState(user string, platform string) error {
 	stateKey := buildStateKey(user, platform)
-	delete(stateDatabase, stateKey)
+	stateCache.Delete(stateKey)
 	return nil
 }
 
@@ -44,6 +47,6 @@ func SetUserState(user string, platform string, currentCommand string, userData 
 		CurrentCommand: &currentCommand,
 		UserData:       userData,
 	}
-	stateDatabase[stateKey] = newState
+	stateCache.Set(stateKey, newState, cache.DefaultExpiration)
 	return nil
 }
