@@ -183,18 +183,18 @@ func productUnitReply(message *tgbotapi.Message, userData UserData) []string {
 func compileResult(message *tgbotapi.Message, userData UserData) []string {
 	userID := message.Chat.ID
 	// convert to base unit
-	for _, p := range userData.ProductList {
-		if p.Unit.Name != userData.BaseUnit.Name {
+	for i := range userData.ProductList {
+		if userData.ProductList[i].Unit.Name != userData.BaseUnit.Name {
 			// convert unit
-			newVal, err := u.ConvertFloat(float64(p.Quantity), p.Unit, userData.BaseUnit)
+			newVal, err := u.ConvertFloat(float64(userData.ProductList[i].Quantity), userData.ProductList[i].Unit, userData.BaseUnit)
 			if err != nil {
 				return []string{"convert unit error!"}
 			}
-			p.Quantity = float32(newVal.Float())
-			p.Unit = userData.BaseUnit
+			userData.ProductList[i].Quantity = float32(newVal.Float())
+			userData.ProductList[i].Unit = userData.BaseUnit
 		}
 		// compare with price
-		p.PricePerBaseUnit = float32(p.Price) / p.Quantity
+		userData.ProductList[i].PricePerBaseUnit = float32(userData.ProductList[i].Price) / userData.ProductList[i].Quantity
 	}
 	slices.SortFunc(userData.ProductList, func(a, b Product) int {
 		if a.PricePerBaseUnit < b.PricePerBaseUnit {
@@ -206,7 +206,7 @@ func compileResult(message *tgbotapi.Message, userData UserData) []string {
 	})
 	reply := ""
 	for _, p := range userData.ProductList {
-		reply += fmt.Sprintf("%.2f\n", p.PricePerBaseUnit)
+		reply += fmt.Sprintf("Product %s: %.2f per %s\n", p.Name, p.PricePerBaseUnit, p.Unit.Name)
 	}
 	state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
 	return []string{reply, "Complete Product!"}
