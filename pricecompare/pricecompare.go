@@ -2,6 +2,7 @@ package pricecompare
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	u "github.com/bcicen/go-units"
@@ -36,11 +37,12 @@ const (
 )
 
 type Product struct {
-	Number   int
-	Name     string
-	Price    int
-	Quantity float32
-	Unit     u.Unit
+	Number           int
+	Name             string
+	Price            int
+	Quantity         float32
+	Unit             u.Unit
+	PricePerBaseUnit float32
 }
 
 type QuantityType int
@@ -146,12 +148,12 @@ func productPriceReply(message *tgbotapi.Message, userData UserData) []string {
 func productQuantityReply(message *tgbotapi.Message, userData UserData) []string {
 	userData.ConversationProgress.ConversationType = ConversationTypeProductQuantity
 	lastProduct := len(userData.ProductList) - 1
-	quantity, err := strconv.Atoi(message.Text)
+	quantity, err := strconv.ParseFloat(message.Text, 32)
 	if err != nil {
 		errReply := "Please enter the correct quantity"
 		return []string{errReply}
 	}
-	userData.ProductList[lastProduct].Quantity = quantity
+	userData.ProductList[lastProduct].Quantity = float32(quantity)
 	userID := message.Chat.ID
 	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	reply := "Product 1: Please enter the product quantity unit"
@@ -192,9 +194,22 @@ func compileResult(message *tgbotapi.Message, userData UserData) []string {
 			p.Unit = userData.BaseUnit
 		}
 		// compare with price
+		p.PricePerBaseUnit = float32(p.Price) / p.Quantity
+	}
+	slices.SortFunc(userData.ProductList, func(a, b Product) int {
+		if a.PricePerBaseUnit < b.PricePerBaseUnit {
+			return -1
+		} else if a.PricePerBaseUnit > b.PricePerBaseUnit {
+			return 1
+		}
+		return 0
+	})
+	reply := ""
+	for _, p := range userData.ProductList {
+		reply += fmt.Sprintf("%.2f\n", p.PricePerBaseUnit)
 	}
 	state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
-	return []string{"Complete Product!"}
+	return []string{reply, "Complete Product!"}
 }
 
 func getCurrentState(userID int64) UserData {
