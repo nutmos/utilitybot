@@ -39,7 +39,7 @@ type Product struct {
 	Number   int
 	Name     string
 	Price    int
-	Quantity int
+	Quantity float32
 	Unit     u.Unit
 }
 
@@ -172,11 +172,29 @@ func productUnitReply(message *tgbotapi.Message, userData UserData) []string {
 	if lastProduct == userData.ProductCount-1 {
 		// end - must compile result
 		// dismiss cache
-		state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
-		return []string{"Complete Product!"}
+		return compileResult(message, userData)
 	}
 	reply := "Product 2: Please enter the product name."
 	return []string{reply}
+}
+
+func compileResult(message *tgbotapi.Message, userData UserData) []string {
+	userID := message.Chat.ID
+	// convert to base unit
+	for _, p := range userData.ProductList {
+		if p.Unit.Name != userData.BaseUnit.Name {
+			// convert unit
+			newVal, err := u.ConvertFloat(float64(p.Quantity), p.Unit, userData.BaseUnit)
+			if err != nil {
+				return []string{"convert unit error!"}
+			}
+			p.Quantity = float32(newVal.Float())
+			p.Unit = userData.BaseUnit
+		}
+		// compare with price
+	}
+	state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
+	return []string{"Complete Product!"}
 }
 
 func getCurrentState(userID int64) UserData {
