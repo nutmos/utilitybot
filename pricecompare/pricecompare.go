@@ -31,10 +31,6 @@ const (
 	ConversationTypeInit ConversationType = iota
 	ConversationTypeProductCount
 	ConversationTypeBaseUnit
-	/*ConversationTypeProductName
-	ConversationTypeProductQuantity
-	ConversationTypeProductPrice
-	ConversationTypeProductUnit*/
 	ConversationTypeProduct
 )
 
@@ -79,13 +75,6 @@ func ContinueCommand(message *tgbotapi.Message) []string {
 		return unitReply(message, userData)
 	case ConversationTypeBaseUnit, ConversationTypeProduct:
 		return productReply(message, userData)
-		/*
-			case ConversationTypeProductName:
-				return productPriceReply(message, userData)
-			case ConversationTypeProductPrice:
-				return productQuantityReply(message, userData)
-			case ConversationTypeProductQuantity:
-				return productUnitReply(message, userData)*/
 	}
 	return []string{}
 }
@@ -119,36 +108,52 @@ func unitReply(message *tgbotapi.Message, userData UserData) []string {
 	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	reply1 := "Sure, let's start the unit conversion."
 	reply2 := "Please enter the product with the following format\n\nProduct Name\nPrice (without currency)\nQuantity (without unit)\nUnit"
-	return []string{reply1, reply2}
+	reply3 := "Starting with product #1:"
+	return []string{reply1, reply2, reply3}
 }
 
 func productReply(message *tgbotapi.Message, userData UserData) []string {
 	// parse test
-	productInfo := strings.Split(message.Text, `\n`)
+	productInfo := strings.Split(message.Text, "\n")
+	userID := message.Chat.ID
+	productNum := len(userData.ProductList)
+	formatErrMessage := "Wrong product information! Please follow the correct format."
 	if len(productInfo) != 4 {
-		return []string{"Wrong product information! Please follow the correct format."}
+		fmt.Println("Error: arguments not complete")
+		return []string{formatErrMessage}
 	}
 	productName := productInfo[0]
 	productPrice, err := strconv.ParseFloat(productInfo[1], 32)
 	if err != nil {
-		return []string{"Wrong product information! Please follow the correct format."}
+		fmt.Println("Error at price")
+		return []string{formatErrMessage}
 	}
 	productQuantity, err := strconv.ParseFloat(productInfo[2], 32)
 	if err != nil {
-		return []string{"Wrong product information! Please follow the correct format."}
+		fmt.Println("Error at quantity")
+		return []string{formatErrMessage}
 	}
 	productUnit, err := u.Find(productInfo[3])
 	if err != nil {
-		return []string{"Wrong product information! Please follow the correct format."}
+		fmt.Println("Error at unit")
+		return []string{formatErrMessage}
 	}
 	// update the text
 	userData.ProductList = append(userData.ProductList, Product{
+		Number:   productNum,
 		Name:     productName,
 		Price:    float32(productPrice),
 		Quantity: float32(productQuantity),
 		Unit:     productUnit,
 	})
-	return []string{"Please enter the next product"}
+	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
+	// decide to compile result
+	if len(userData.ProductList) == userData.ProductCount {
+		return compileResult(message, userData)
+	} else {
+		nextMessage := fmt.Sprintf("Please enter the next product #%d", len(userData.ProductList)+1)
+		return []string{nextMessage}
+	}
 }
 
 func compileResult(message *tgbotapi.Message, userData UserData) []string {

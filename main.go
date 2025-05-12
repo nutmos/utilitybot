@@ -40,7 +40,6 @@ func receiveUpdates(ctx context.Context, updates tgbotapi.UpdatesChannel) {
 }
 
 func handleUpdate(update tgbotapi.Update) {
-	log.Println("Message Received")
 	switch {
 	// Handle messages
 	case update.Message != nil:
