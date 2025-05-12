@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 
 	u "github.com/bcicen/go-units"
 	"github.com/fatih/structs"
@@ -30,16 +31,17 @@ const (
 	ConversationTypeInit ConversationType = iota
 	ConversationTypeProductCount
 	ConversationTypeBaseUnit
-	ConversationTypeProductName
+	/*ConversationTypeProductName
 	ConversationTypeProductQuantity
 	ConversationTypeProductPrice
-	ConversationTypeProductUnit
+	ConversationTypeProductUnit*/
+	ConversationTypeProduct
 )
 
 type Product struct {
 	Number           int
 	Name             string
-	Price            int
+	Price            float32
 	Quantity         float32
 	Unit             u.Unit
 	PricePerBaseUnit float32
@@ -75,14 +77,15 @@ func ContinueCommand(message *tgbotapi.Message) []string {
 		return productCountReply(message, userData)
 	case ConversationTypeProductCount:
 		return unitReply(message, userData)
-	case ConversationTypeBaseUnit, ConversationTypeProductUnit:
-		return productNameReply(message, userData)
-	case ConversationTypeProductName:
-		return productPriceReply(message, userData)
-	case ConversationTypeProductPrice:
-		return productQuantityReply(message, userData)
-	case ConversationTypeProductQuantity:
-		return productUnitReply(message, userData)
+	case ConversationTypeBaseUnit, ConversationTypeProduct:
+		return productReply(message, userData)
+		/*
+			case ConversationTypeProductName:
+				return productPriceReply(message, userData)
+			case ConversationTypeProductPrice:
+				return productQuantityReply(message, userData)
+			case ConversationTypeProductQuantity:
+				return productUnitReply(message, userData)*/
 	}
 	return []string{}
 }
@@ -115,69 +118,37 @@ func unitReply(message *tgbotapi.Message, userData UserData) []string {
 	userID := message.Chat.ID
 	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	reply1 := "Sure, let's start the unit conversion."
-	reply2 := "Product 1: Please enter the product name"
+	reply2 := "Please enter the product with the following format\n\nProduct Name\nPrice (without currency)\nQuantity (without unit)\nUnit"
 	return []string{reply1, reply2}
 }
 
-func productNameReply(message *tgbotapi.Message, userData UserData) []string {
-	userData.ConversationProgress.ConversationType = ConversationTypeProductName
+func productReply(message *tgbotapi.Message, userData UserData) []string {
+	// parse test
+	productInfo := strings.Split(message.Text, `\n`)
+	if len(productInfo) != 4 {
+		return []string{"Wrong product information! Please follow the correct format."}
+	}
+	productName := productInfo[0]
+	productPrice, err := strconv.ParseFloat(productInfo[1], 32)
+	if err != nil {
+		return []string{"Wrong product information! Please follow the correct format."}
+	}
+	productQuantity, err := strconv.ParseFloat(productInfo[2], 32)
+	if err != nil {
+		return []string{"Wrong product information! Please follow the correct format."}
+	}
+	productUnit, err := u.Find(productInfo[3])
+	if err != nil {
+		return []string{"Wrong product information! Please follow the correct format."}
+	}
+	// update the text
 	userData.ProductList = append(userData.ProductList, Product{
-		Name: message.Text,
+		Name:     productName,
+		Price:    float32(productPrice),
+		Quantity: float32(productQuantity),
+		Unit:     productUnit,
 	})
-	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
-	reply := "Product 1: Please enter the product price"
-	return []string{reply}
-}
-
-func productPriceReply(message *tgbotapi.Message, userData UserData) []string {
-	userData.ConversationProgress.ConversationType = ConversationTypeProductPrice
-	lastProduct := len(userData.ProductList) - 1
-	price, err := strconv.Atoi(message.Text)
-	if err != nil {
-		errReply := "Please enter the correct price"
-		return []string{errReply}
-	}
-	userData.ProductList[lastProduct].Price = price
-	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
-	reply := "Product 1: Please enter the product quantity without a unit"
-	return []string{reply}
-}
-
-func productQuantityReply(message *tgbotapi.Message, userData UserData) []string {
-	userData.ConversationProgress.ConversationType = ConversationTypeProductQuantity
-	lastProduct := len(userData.ProductList) - 1
-	quantity, err := strconv.ParseFloat(message.Text, 32)
-	if err != nil {
-		errReply := "Please enter the correct quantity"
-		return []string{errReply}
-	}
-	userData.ProductList[lastProduct].Quantity = float32(quantity)
-	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
-	reply := "Product 1: Please enter the product quantity unit"
-	return []string{reply}
-}
-
-func productUnitReply(message *tgbotapi.Message, userData UserData) []string {
-	unit, err := u.Find(message.Text)
-	if err != nil {
-		errReply := "You enter the incorrect unit. Please enter the correct unit."
-		return []string{errReply}
-	}
-	userData.ConversationProgress.ConversationType = ConversationTypeProductUnit
-	lastProduct := len(userData.ProductList) - 1
-	userData.ProductList[lastProduct].Unit = unit
-	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
-	if lastProduct == userData.ProductCount-1 {
-		// end - must compile result
-		// dismiss cache
-		return compileResult(message, userData)
-	}
-	reply := "Product 2: Please enter the product name."
-	return []string{reply}
+	return []string{"Please enter the next product"}
 }
 
 func compileResult(message *tgbotapi.Message, userData UserData) []string {
