@@ -106,10 +106,11 @@ func unitReply(message *tgbotapi.Message, userData UserData) []string {
 	userData.BaseUnit = unit
 	userID := message.Chat.ID
 	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
-	reply1 := "Sure, let's start the unit conversion."
-	reply2 := "Please enter the product with the following format\n\nProduct Name\nPrice (without currency)\nQuantity (without unit)\nUnit"
-	reply3 := "Starting with product #1:"
-	return []string{reply1, reply2, reply3}
+	reply1 := fmt.Sprintf("You choose %s as a base unit.", unit.Name)
+	reply2 := "Let's start the unit conversion."
+	reply3 := "Please enter the product with the following format\n\nProduct Name\nPrice (without currency)\nQuantity (without unit)\nUnit"
+	reply4 := "Starting with product #1:"
+	return []string{reply1, reply2, reply3, reply4}
 }
 
 func productReply(message *tgbotapi.Message, userData UserData) []string {
@@ -151,7 +152,7 @@ func productReply(message *tgbotapi.Message, userData UserData) []string {
 	if len(userData.ProductList) == userData.ProductCount {
 		return compileResult(message, userData)
 	} else {
-		nextMessage := fmt.Sprintf("Please enter the next product #%d", len(userData.ProductList)+1)
+		nextMessage := fmt.Sprintf("Please enter the product #%d", len(userData.ProductList)+1)
 		return []string{nextMessage}
 	}
 }
