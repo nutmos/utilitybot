@@ -10,7 +10,7 @@ import (
 	"github.com/fatih/structs"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/mitchellh/mapstructure"
-	state "github.com/nutmos/utilitybot/userstatehandler"
+	"github.com/nutmos/utilitybot/userstatehandler"
 )
 
 func StartCommand(message *tgbotapi.Message) []string {
@@ -22,7 +22,7 @@ func StartCommand(message *tgbotapi.Message) []string {
 			ConversationType: ConversationTypeInit,
 		},
 	}
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(emptyUserData))
+	userstatehandler.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(emptyUserData))
 	// ask the user for how many products
 	reply := "Great! How many products would you like to compare? Please note that we support up to 5 products at once."
 	return []string{reply}
@@ -54,7 +54,7 @@ func productCountReply(message *tgbotapi.Message, userData UserData) []string {
 	userData.ConversationProgress.ConversationType = ConversationTypeProductCount
 	userData.ProductCount = count
 	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
+	userstatehandler.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	reply := "Great! What is the base unit you would like to use for the comparison?"
 	return []string{reply}
 }
@@ -68,7 +68,7 @@ func unitReply(message *tgbotapi.Message, userData UserData) []string {
 	userData.ConversationProgress.ConversationType = ConversationTypeBaseUnit
 	userData.BaseUnit = unit
 	userID := message.Chat.ID
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
+	userstatehandler.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	reply1 := fmt.Sprintf("You choose %s as a base unit.", unit.Name)
 	reply2 := "Let's start the unit conversion."
 	reply3 := "Please enter the product with the following format\n\nProduct Name\nPrice (without currency)\nQuantity (without unit)\nUnit"
@@ -110,7 +110,7 @@ func productReply(message *tgbotapi.Message, userData UserData) []string {
 		Quantity: float32(productQuantity),
 		Unit:     productUnit,
 	})
-	state.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
+	userstatehandler.SetUserState(fmt.Sprintf("%d", userID), "telegram", "pricecompare", structs.Map(userData))
 	// decide to compile result
 	if len(userData.ProductList) == userData.ProductCount {
 		return compileResult(message, userData)
@@ -148,13 +148,13 @@ func compileResult(message *tgbotapi.Message, userData UserData) []string {
 	for _, p := range userData.ProductList {
 		reply += fmt.Sprintf("Product %s: %.2f per %s\n", p.Name, p.PricePerBaseUnit, p.Unit.Name)
 	}
-	state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
+	userstatehandler.DelUserState(fmt.Sprintf("%d", userID), "telegram")
 	return []string{reply, "Thank you for using our tool. Have a nice day!"}
 }
 
 func getCurrentState(userID int64) UserData {
 	// query state
-	currentState := state.GetUserState(fmt.Sprintf("%d", userID), "telegram")
+	currentState := userstatehandler.GetUserState(fmt.Sprintf("%d", userID), "telegram")
 	var userData UserData
 	mapstructure.Decode(currentState.UserData, &userData)
 	return userData
