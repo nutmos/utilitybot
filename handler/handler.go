@@ -12,7 +12,7 @@ import (
 	"github.com/nutmos/utilitybot/myflights"
 	"github.com/nutmos/utilitybot/pricecompare"
 	"github.com/nutmos/utilitybot/random"
-	"github.com/nutmos/utilitybot/state"
+	state "github.com/nutmos/utilitybot/userstatehandler"
 )
 
 var (
@@ -26,6 +26,7 @@ func init() {
 		panic(err)
 	}
 	Bot.Debug = false
+	state.InitUserStateHandler(state.UserStateHandlerTypeInMemory)
 }
 
 func HandleMessage(message *tgbotapi.Message) {

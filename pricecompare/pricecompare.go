@@ -10,44 +10,7 @@ import (
 	"github.com/fatih/structs"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/mitchellh/mapstructure"
-	"github.com/nutmos/utilitybot/state"
-)
-
-type UserData struct {
-	ConversationProgress ConversationProgress
-	ProductCount         int
-	BaseUnit             u.Unit
-	ProductList          []Product
-}
-
-type ConversationProgress struct {
-	Product          int
-	ConversationType ConversationType
-}
-
-type ConversationType int
-
-const (
-	ConversationTypeInit ConversationType = iota
-	ConversationTypeProductCount
-	ConversationTypeBaseUnit
-	ConversationTypeProduct
-)
-
-type Product struct {
-	Number           int
-	Name             string
-	Price            float32
-	Quantity         float32
-	Unit             u.Unit
-	PricePerBaseUnit float32
-}
-
-type QuantityType int
-
-const (
-	QuaytityTypeFluid QuantityType = iota
-	QuantityTypeWeight
+	state "github.com/nutmos/utilitybot/userstatehandler"
 )
 
 func StartCommand(message *tgbotapi.Message) []string {
@@ -186,7 +149,7 @@ func compileResult(message *tgbotapi.Message, userData UserData) []string {
 		reply += fmt.Sprintf("Product %s: %.2f per %s\n", p.Name, p.PricePerBaseUnit, p.Unit.Name)
 	}
 	state.DelUserState(fmt.Sprintf("%d", userID), "telegram")
-	return []string{reply, "Complete Product!"}
+	return []string{reply, "Thank you for using our tool. Have a nice day!"}
 }
 
 func getCurrentState(userID int64) UserData {

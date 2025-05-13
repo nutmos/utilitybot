@@ -15,6 +15,7 @@ func InitUserStateHandler(t UserStateHandlerType) {
 }
 
 func GetUserState(user string, platform string) *UserState {
+	//fmt.Println("GetUserState function")
 	return userStateHandler.GetUserState(user, platform)
 }
 
