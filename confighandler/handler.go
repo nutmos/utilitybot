@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string) (config ConfigStruct, err error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(path)
@@ -17,12 +17,12 @@ func LoadConfig(path string) (config Config, err error) {
 
 	if err = viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return Config{}, err
+			return ConfigStruct{}, err
 		}
 	}
 
 	if err = viper.Unmarshal(&config); err != nil {
-		return Config{}, err
+		return ConfigStruct{}, err
 	}
 
 	return config, nil
@@ -34,10 +34,5 @@ func init() {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	fmt.Printf("API Port: %s\n", config.API.Port)
-	fmt.Printf("Database Host: %s\n", config.Database.Host)
-	fmt.Printf("Database Port: %d\n", config.Database.Port)
-	fmt.Printf("Database Username: %s\n", config.Database.Username)
-	fmt.Printf("Database Password: %s\n", config.Database.Password)
-	fmt.Printf("Database Name: %s\n", config.Database.Name)
+	fmt.Printf("Telegram API Key: %s\n", config.ApiKey.Telegram)
 }
