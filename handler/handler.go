@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/nutmos/utilitybot/config"
+	"github.com/nutmos/utilitybot/confighandler"
 	"github.com/nutmos/utilitybot/flightcaller"
 	"github.com/nutmos/utilitybot/myflights"
 	"github.com/nutmos/utilitybot/pricecompare"
@@ -21,7 +21,8 @@ var (
 
 func init() {
 	var err error
-	Bot, err = tgbotapi.NewBotAPI(config.Config.ApiKey.Telegram)
+	log.Printf("confighandler.Config.ApiKey.Telegram: %s", confighandler.Config.ApiKey.Telegram)
+	Bot, err = tgbotapi.NewBotAPI(confighandler.Config.ApiKey.Telegram)
 	if err != nil {
 		panic(err)
 	}

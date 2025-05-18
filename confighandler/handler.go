@@ -8,7 +8,7 @@ import (
 )
 
 func LoadConfig(path string) (config ConfigStruct, err error) {
-	viper.SetConfigName("config")
+	viper.SetConfigName("secrets.yaml")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(path)
 
@@ -17,11 +17,14 @@ func LoadConfig(path string) (config ConfigStruct, err error) {
 
 	if err = viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			fmt.Println("Config Read Error: File Not Found")
 			return ConfigStruct{}, err
 		}
+		fmt.Printf("%v\n", err)
 	}
 
 	if err = viper.Unmarshal(&config); err != nil {
+		fmt.Println("Config Unmarshal Error")
 		return ConfigStruct{}, err
 	}
 
@@ -30,10 +33,11 @@ func LoadConfig(path string) (config ConfigStruct, err error) {
 
 func init() {
 	fmt.Println("Now Reading Config File")
-	config, err := LoadConfig("./secrets/secrets.yaml")
+	var err error
+	Config, err = LoadConfig("./secrets")
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	fmt.Printf("Telegram API Key: %s\n", config.ApiKey.Telegram)
+	fmt.Printf("Telegram API Key: %s\n", Config.ApiKey.Telegram)
 }
