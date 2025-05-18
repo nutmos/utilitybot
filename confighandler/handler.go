@@ -29,7 +29,8 @@ func LoadConfig(path string) (config ConfigStruct, err error) {
 }
 
 func init() {
-	config, err := LoadConfig("./secrets/secret.yaml")
+	fmt.Println("Now Reading Config File")
+	config, err := LoadConfig("./secrets/secrets.yaml")
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}

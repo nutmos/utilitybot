@@ -7,10 +7,13 @@ import (
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/nutmos/utilitybot/confighandler"
 	"github.com/nutmos/utilitybot/handler"
 )
 
 func main() {
+
+	log.Println("Test New Config Handler: Telegram API Key:", confighandler.Config.ApiKey.Telegram)
 	bot := handler.Bot
 	botData, _ := bot.GetMe()
 	log.Printf("Bot %s", botData.UserName)

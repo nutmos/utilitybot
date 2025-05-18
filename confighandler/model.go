@@ -1,12 +1,12 @@
 package confighandler
 
 type ApiKey struct {
-	Aviationstack string `yaml:"aviationstack"`
-	Telegram      string `yaml:"telegram"`
+	Aviationstack string `mapstructure:"aviationstack"`
+	Telegram      string `mapstructure:"telegram"`
 }
 
 type ConfigStruct struct {
-	ApiKey ApiKey `yaml:"apiKey"`
+	ApiKey ApiKey `mapstructure:"apiKey"`
 }
 
 var (
