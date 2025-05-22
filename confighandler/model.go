@@ -6,9 +6,15 @@ type ApiKey struct {
 }
 
 type ConfigStruct struct {
-	ApiKey ApiKey `mapstructure:"apiKey"`
+	ApiKey         ApiKey `mapstructure:"apiKey"`
+	DeploymentMode string `mapstructure:"deploymentMode"`
 }
 
 var (
 	Config ConfigStruct
+)
+
+const (
+	DeploymentModePull   string = "Pull"
+	DeploymentModeLambda string = "Lambda"
 )
