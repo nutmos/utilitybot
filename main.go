@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/nutmos/utilitybot/confighandler"
 	"github.com/nutmos/utilitybot/handler"
@@ -15,8 +16,12 @@ func main() {
 	if confighandler.Config.DeploymentMode == confighandler.DeploymentModePull {
 		pullMode()
 	} else if confighandler.Config.DeploymentMode == confighandler.DeploymentModeLambda {
-
+		lambdaMode()
 	}
+}
+
+func lambdaMode() {
+	lambda.Start(handler.HandleLambdaRequest)
 }
 
 func pullMode() {
