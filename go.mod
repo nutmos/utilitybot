@@ -5,6 +5,7 @@ go 1.22
 toolchain go1.23.8
 
 require (
+	github.com/aws/aws-lambda-go v1.48.0
 	github.com/bcicen/go-units v1.0.5
 	github.com/fatih/structs v1.1.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
