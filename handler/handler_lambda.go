@@ -14,7 +14,9 @@ type Event struct {
 
 func HandleLambdaRequest(ctx context.Context, event json.RawMessage) error {
 	var e Event
-	json.Unmarshal(event, &e)
+	if err := json.Unmarshal(event, &e); err != nil {
+		return err
+	}
 	HandleMessage(e.Message)
 	return nil
 }
