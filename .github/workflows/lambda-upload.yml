@@ -37,8 +37,18 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm64
+      - name: Add secret folder
+        run: mkdir secrets
+      - name: Add secret file
+        run: |
+          echo "
+          apiKey:
+            aviationstack: placeholder
+            telegram: placeholder
+          deploymentMode: Lambda
+          " > secrets/secrets.yaml
       - name: Zip File
-        run: zip function.zip bootstrap
+        run: zip function.zip bootstrap secrets/
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
