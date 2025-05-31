@@ -35,6 +35,10 @@ func HandleMessage(message *tgbotapi.Message) {
 		// check the current state
 		userID := message.Chat.ID
 		currentState := state.GetUserState(fmt.Sprintf("%d", userID), "telegram")
+		if currentState == nil {
+			SendMessage(message, "Error: Please enter a command before proceeding.")
+			return
+		}
 		currentCommand := currentState.CurrentCommand
 		switch *currentCommand {
 		case "pricecompare":
