@@ -48,7 +48,7 @@ jobs:
           deploymentMode: Lambda
           " > secrets/secrets.yaml
       - name: Zip File
-        run: zip function.zip bootstrap secrets/
+        run: zip function.zip bootstrap secrets
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
