@@ -101,10 +101,12 @@ func flightCheckCommand(message *tgbotapi.Message) {
 
 func randomCommand(message *tgbotapi.Message) {
 	randomNumberRangeString := strings.Replace(message.Text, "/random ", "", 1)
+	log.Println("randomNumberRangeString: %s\n", randomNumberRangeString)
 	randomNumberRange, err := strconv.Atoi(randomNumberRangeString)
 	if err != nil {
 		log.Println("%v", err)
 		SendMessage(message, "Error: Please Enter Only Positive Integer")
+		return
 	}
 	result := random.RandomNumber(randomNumberRange)
 	SendMessage(message, fmt.Sprintf("%d", result))
