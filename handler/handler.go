@@ -101,7 +101,6 @@ func flightCheckCommand(message *tgbotapi.Message) {
 
 func randomCommand(message *tgbotapi.Message) {
 	randomNumberRangeString := strings.Replace(message.Text, "/random ", "", 1)
-	log.Println("randomNumberRangeString: %s\n", randomNumberRangeString)
 	randomNumberRange, err := strconv.Atoi(randomNumberRangeString)
 	if err != nil {
 		log.Println("%v", err)
