@@ -103,6 +103,7 @@ func randomCommand(message *tgbotapi.Message) {
 	randomNumberRangeString := strings.Replace(message.Text, "/random ", "", 1)
 	randomNumberRange, err := strconv.Atoi(randomNumberRangeString)
 	if err != nil {
+		log.Println("%v", err)
 		SendMessage(message, "Error: Please Enter Only Positive Integer")
 	}
 	result := random.RandomNumber(randomNumberRange)
