@@ -9,6 +9,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/nutmos/utilitybot/confighandler"
 	"github.com/nutmos/utilitybot/flightcaller"
+	"github.com/nutmos/utilitybot/fortune_teller"
 	"github.com/nutmos/utilitybot/myflights"
 	"github.com/nutmos/utilitybot/pricecompare"
 	"github.com/nutmos/utilitybot/random"
@@ -66,6 +67,8 @@ func HandleMessage(message *tgbotapi.Message) {
 		break
 	case "pricecompare":
 		priceCompare(message)
+	case "tellmyfortune":
+		tellMyFortune(message)
 	}
 }
 
@@ -163,5 +166,16 @@ func contPriceCompare(message *tgbotapi.Message) {
 	reply := pricecompare.ContinueCommand(message)
 	for _, r := range reply {
 		SendMessage(message, r)
+	}
+}
+
+func tellMyFortune(message *tgbotapi.Message) {
+	fortune := fortune_teller.TellMyFortune()
+
+	switch fortune {
+	case fortune_teller.FortuneGood:
+		SendMessage(message, "Good")
+	case fortune_teller.FortuneSuay:
+		SendMessage(message, "Suay")
 	}
 }
